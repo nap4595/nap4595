@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="문제를 정의하고 판단 가능한 형태로 만든 김동욱의 프로젝트 포트폴리오">
+  <title>Kim Dongwook · Project Portfolio</title>
+  <style>
+    :root {
+      --paper: #f2f0e9;
+      --ink: #16191d;
+      --muted: #676862;
+      --line: #d7d4ca;
+      --card: #fbfaf6;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 12% 4%, rgba(255,255,255,.9), transparent 30%),
+        var(--paper);
+      color: var(--ink);
+      font-family: Arial, Pretendard, "Noto Sans KR", "Apple SD Gothic Neo",
+        "Malgun Gothic", sans-serif;
+    }
+
+    body.modal-open { overflow: hidden; }
+    button, a { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 3px solid var(--ink);
+      outline-offset: 3px;
+    }
+
+    .shell {
+      width: min(100%, 1600px);
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: 0 clamp(22px, 4vw, 68px);
+    }
+
+    .site-header {
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .wordmark {
+      font-size: 13px;
+      font-weight: 760;
+      letter-spacing: .15em;
+    }
+
+    .site-header nav {
+      display: flex;
+      gap: 24px;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .site-header nav a {
+      position: relative;
+    }
+
+    .site-header nav a::after {
+      content: "";
+      position: absolute;
+      right: 100%;
+      bottom: -5px;
+      left: 0;
+      height: 1px;
+      background: currentColor;
+      transition: right 180ms ease;
+    }
+
+    .site-header nav a:hover::after { right: 0; }
+
+    .hero {
+      padding: clamp(34px, 5vh, 58px) 0 clamp(28px, 4vh, 44px);
+    }
+
+    .hero-kicker {
+      margin: 0 0 19px;
+      color: var(--muted);
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+    }
+
+    .hero-copy {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, .55fr);
+      align-items: end;
+      gap: clamp(32px, 6vw, 96px);
+    }
+
+    .hero h1 {
+      max-width: 910px;
+      margin: 0;
+      font-size: clamp(38px, 4.2vw, 66px);
+      font-weight: 690;
+      line-height: 1.08;
+      letter-spacing: -.055em;
+      text-wrap: balance;
+    }
+
+    .hero-copy > p {
+      margin: 0 0 5px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
+      word-break: keep-all;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(14px, 1.7vw, 26px);
+    }
+
+    .project-card {
+      min-width: 0;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--card);
+      box-shadow: 0 1px 0 rgba(22,25,29,.04);
+      transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+    }
+
+    .project-card::before {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      inset: 0 0 auto;
+      height: 4px;
+      background: var(--accent);
+      transform: scaleX(.18);
+      transform-origin: left;
+      transition: transform 260ms ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent);
+      box-shadow: 0 18px 44px rgba(29,31,34,.1);
+    }
+
+    .project-card:hover::before { transform: scaleX(1); }
+
+    .card-main {
+      width: 100%;
+      flex: 1;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto auto 1fr auto auto;
+      padding: 25px 25px 18px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .project-number {
+      color: var(--accent);
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .project-category {
+      justify-self: end;
+      color: var(--muted);
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 10px;
+      font-weight: 680;
+      letter-spacing: .09em;
+    }
+
+    .project-card h2 {
+      grid-column: 1 / -1;
+      min-height: 56px;
+      margin: 20px 0 10px;
+      font-size: clamp(20px, 1.65vw, 27px);
+      line-height: 1.28;
+      letter-spacing: -.04em;
+      word-break: keep-all;
+    }
+
+    .card-main > p {
+      grid-column: 1 / -1;
+      min-height: 45px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+      word-break: keep-all;
+    }
+
+    .tax-visual,
+    .audio-visual,
+    .place-visual {
+      grid-column: 1 / -1;
+      height: 126px;
+      margin: 20px 0 17px;
+      border: 1px solid color-mix(in srgb, var(--accent) 17%, var(--line));
+      background: var(--accent-soft);
+    }
+
+    .tax-visual {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: 17px 18px 22px 38px;
+    }
+
+    .heat-grid {
+      width: min(100%, 260px);
+      height: 80px;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+    }
+
+    .heat-grid span {
+      border-radius: 2px;
+      background: #ef6b52;
+    }
+
+    .heat-grid .tone-1 { background: #eeb66e; }
+    .heat-grid .tone-2 { background: #71a982; }
+
+    .axis-label {
+      position: absolute;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 680;
+      letter-spacing: .08em;
+    }
+
+    .axis-y {
+      top: 53px;
+      left: 10px;
+      transform: rotate(-90deg);
+    }
+
+    .axis-x {
+      right: 17px;
+      bottom: 7px;
+    }
+
+    .audio-visual {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 13px 17px 11px;
+    }
+
+    .audio-meta,
+    .audio-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 9px;
+      font-weight: 680;
+      letter-spacing: .07em;
+    }
+
+    .waveform {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(3px, .4vw, 6px);
+    }
+
+    .waveform span {
+      width: 4px;
+      max-height: 50px;
+      border-radius: 10px;
+      background: var(--accent);
+      opacity: .84;
+    }
+
+    .audio-controls {
+      justify-content: center;
+      gap: 24px;
+      color: var(--accent);
+    }
+
+    .audio-controls b {
+      display: grid;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-size: 9px;
+    }
+
+    .place-visual {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      overflow: hidden;
+    }
+
+    .map-pane {
+      position: relative;
+      overflow: hidden;
+      border-right: 1px solid rgba(181,123,0,.2);
+      background:
+        linear-gradient(32deg, transparent 40%, rgba(181,123,0,.13) 41% 45%, transparent 46%),
+        linear-gradient(132deg, transparent 25%, rgba(181,123,0,.11) 26% 30%, transparent 31%);
+    }
+
+    .road {
+      position: absolute;
+      height: 6px;
+      border-radius: 20px;
+      background: white;
+      box-shadow: 0 0 0 1px rgba(181,123,0,.08);
+    }
+
+    .road-one {
+      width: 150px;
+      top: 54px;
+      left: -18px;
+      transform: rotate(24deg);
+    }
+
+    .road-two {
+      width: 125px;
+      top: 70px;
+      left: 26px;
+      transform: rotate(-52deg);
+    }
+
+    .pin {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border: 3px solid white;
+      border-radius: 50% 50% 50% 0;
+      background: var(--accent);
+      box-shadow: 0 2px 7px rgba(70,50,0,.16);
+      transform: rotate(-45deg);
+    }
+
+    .pin-one { top: 28%; left: 25%; }
+    .pin-two { top: 48%; right: 24%; }
+    .pin-three { bottom: 15%; left: 42%; }
+
+    .list-pane {
+      padding: 15px;
+      background: rgba(255,255,255,.6);
+    }
+
+    .list-pane > div {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 11px;
+    }
+
+    .list-pane > div b { font-size: 11px; }
+    .list-pane > div span { color: var(--muted); font-size: 8px; }
+
+    .list-pane p {
+      display: flex;
+      align-items: center;
+      margin: 0;
+      padding: 7px 0;
+      border-top: 1px solid rgba(181,123,0,.14);
+      color: var(--muted);
+      font-size: 8px;
+    }
+
+    .list-pane p i {
+      width: 5px;
+      height: 5px;
+      margin-right: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .list-pane p b {
+      margin-left: auto;
+      color: var(--ink);
+      font-weight: 650;
+    }
+
+    .project-signal {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 680;
+    }
+
+    .project-signal b {
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 680;
+    }
+
+    .card-links,
+    .modal-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .card-links {
+      padding: 14px 25px 17px;
+      border-top: 1px solid var(--line);
+    }
+
+    .card-links a,
+    .modal-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 100px;
+      font-size: 10px;
+      font-weight: 680;
+      transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+    }
+
+    .card-links a:hover,
+    .modal-links a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .card-links .primary,
+    .modal-links .primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: white;
+    }
+
+    .site-footer {
+      min-height: 65px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 9px;
+      letter-spacing: .06em;
+    }
+
+    dialog {
+      width: min(900px, calc(100% - 48px));
+      max-height: min(88svh, 860px);
+      overflow-y: auto;
+      padding: 0;
+      border: 1px solid rgba(255,255,255,.2);
+      border-top: 5px solid var(--accent);
+      border-radius: 5px;
+      background: var(--card);
+      color: var(--ink);
+      box-shadow: 0 30px 100px rgba(0,0,0,.34);
+    }
+
+    dialog::backdrop {
+      background: rgba(16,18,20,.68);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-close {
+      position: sticky;
+      float: right;
+      top: 18px;
+      z-index: 2;
+      width: 36px;
+      height: 36px;
+      margin: 18px 18px 0 0;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--card);
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 25px;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .modal-heading {
+      padding: 52px clamp(28px, 6vw, 72px) 39px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(100deg, var(--accent-soft), transparent 72%);
+    }
+
+    .modal-heading > p {
+      margin: 0 0 16px;
+      color: var(--accent);
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 11px;
+      font-weight: 760;
+      letter-spacing: .09em;
+    }
+
+    .modal-heading h2 {
+      max-width: 690px;
+      margin: 0 0 15px;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.17;
+      letter-spacing: -.05em;
+      word-break: keep-all;
+    }
+
+    .modal-heading > span {
+      display: block;
+      max-width: 670px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .modal-body {
+      display: grid;
+      gap: 34px;
+      padding: 42px clamp(28px, 6vw, 72px);
+    }
+
+    .modal-body h3,
+    .modal-body blockquote span {
+      display: block;
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 10px;
+      font-weight: 760;
+      letter-spacing: .12em;
+    }
+
+    .modal-body section p {
+      margin: 0;
+      color: #484a47;
+      font-size: 14px;
+      line-height: 1.9;
+      word-break: keep-all;
+    }
+
+    .modal-body blockquote {
+      margin: 0;
+      padding: 23px 25px;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      font-size: clamp(19px, 2.2vw, 27px);
+      font-weight: 680;
+      line-height: 1.48;
+      letter-spacing: -.03em;
+      word-break: keep-all;
+    }
+
+    .modal-body ol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 1px;
+      margin: 0;
+      padding: 1px;
+      background: var(--line);
+      list-style: none;
+      counter-reset: steps;
+    }
+
+    .modal-body li {
+      min-height: 104px;
+      padding: 19px;
+      background: var(--card);
+      color: #484a47;
+      counter-increment: steps;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .modal-body li::before {
+      content: "0" counter(steps);
+      display: block;
+      margin-bottom: 9px;
+      color: var(--accent);
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 9px;
+      font-weight: 760;
+    }
+
+    .modal-two-column {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 34px;
+    }
+
+    .modal-two-column section + section {
+      padding-left: 34px;
+      border-left: 1px solid var(--line);
+    }
+
+    .modal-links {
+      padding: 0 clamp(28px, 6vw, 72px) 48px;
+    }
+
+    @media (max-width: 960px) {
+      .hero-copy {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .project-grid { grid-template-columns: 1fr; }
+      .project-card h2, .card-main > p { min-height: 0; }
+      .tax-visual, .audio-visual, .place-visual { height: 150px; }
+    }
+
+    @media (max-width: 640px) {
+      .shell { padding: 0 16px; }
+      .site-header { height: 62px; }
+      .site-header nav { gap: 14px; font-size: 11px; }
+      .hero { padding: 34px 0 28px; }
+      .hero h1 { font-size: 37px; }
+      .hero-copy > p br { display: none; }
+      .card-main { padding: 22px 20px 17px; }
+      .card-links { padding: 13px 20px 16px; }
+
+      dialog {
+        width: 100%;
+        max-width: none;
+        max-height: 94svh;
+        margin: auto 0 0;
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 13px 13px 0 0;
+      }
+
+      .modal-heading { padding-top: 64px; }
+      .modal-body ol, .modal-two-column { grid-template-columns: 1fr; }
+
+      .modal-two-column section + section {
+        padding-top: 28px;
+        padding-left: 0;
+        border-top: 1px solid var(--line);
+        border-left: 0;
+      }
+
+      .site-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 6px;
+        padding: 18px 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="페이지 맨 위로">KIM DONGWOOK</a>
+      <nav aria-label="외부 링크">
+        <a href="https://github.com/nap4595" target="_blank" rel="noreferrer">GitHub ↗</a>
+        <a href="mailto:nap4595@gmail.com">Contact</a>
+      </nav>
+    </header>
+
+    <section class="hero" id="top">
+      <p class="hero-kicker">THREE PROJECTS · THREE QUESTIONS</p>
+      <div class="hero-copy">
+        <h1>문제를 작게 정의하고,<br>판단 가능한 형태로 만들었습니다.</h1>
+        <p>세금의 시점 차이, 반복되는 LC 조작, 흩어진 장소 정보.<br>
+          결과보다 먼저, 무엇을 풀어야 했는지 기록했습니다.</p>
+      </div>
+    </section>
+
+    <section class="project-grid" aria-label="프로젝트 목록">
+      <article class="project-card" style="--accent:#f05a3c;--accent-soft:#fff0eb">
+        <button class="card-main" type="button" data-project="tax"
+          aria-label="정답 대신, 결론이 바뀌는 조건을 보여주기 상세 보기">
+          <span class="project-number">01</span>
+          <span class="project-category">DECISION SUPPORT</span>
+          <h2>정답 대신, 결론이 바뀌는 조건을 보여주기</h2>
+          <p>감가상각비 반영 여부를 현재의 절세와 미래의 세부담으로 나누어 비교했습니다.</p>
+          <div class="tax-visual" aria-hidden="true">
+            <span class="axis-label axis-y">산입액</span>
+            <div class="heat-grid">
+              <span></span><span class="tone-1"></span><span class="tone-1"></span><span class="tone-2"></span><span class="tone-2"></span><span class="tone-2"></span>
+              <span></span><span></span><span class="tone-1"></span><span class="tone-1"></span><span class="tone-2"></span><span class="tone-2"></span>
+              <span></span><span></span><span></span><span class="tone-1"></span><span class="tone-1"></span><span class="tone-2"></span>
+              <span></span><span></span><span></span><span></span><span class="tone-1"></span><span class="tone-1"></span>
+            </div>
+            <span class="axis-label axis-x">보유기간 →</span>
+          </div>
+          <span class="project-signal">현재 절감 − 미래 부담의 현재가치 <b>상세 보기 →</b></span>
+        </button>
+        <div class="card-links" aria-label="Tax Heatmap 링크">
+          <a href="https://github.com/nap4595/tax-heatmap-simulator" target="_blank" rel="noreferrer">GitHub ↗</a>
+          <a class="primary" href="https://nap4595.github.io/tax-heatmap-simulator/" target="_blank" rel="noreferrer">GitHub Pages ↗</a>
+        </div>
+      </article>
+
+      <article class="project-card" style="--accent:#3659d9;--accent-soft:#edf1ff">
+        <button class="card-main" type="button" data-project="toeic"
+          aria-label="파일을 찾는 시간을 듣는 시간으로 바꾸기 상세 보기">
+          <span class="project-number">02</span>
+          <span class="project-category">WORKFLOW TOOL</span>
+          <h2>파일을 찾는 시간을 듣는 시간으로 바꾸기</h2>
+          <p>흩어진 LC 음원을 파일명 규칙으로 분류해 원하는 문항을 바로 반복하도록 만들었습니다.</p>
+          <div class="audio-visual" aria-hidden="true">
+            <div class="audio-meta"><span>TEST 04</span><span>Q. 072</span></div>
+            <div class="waveform">
+              <span style="height:18px"></span><span style="height:30px"></span><span style="height:46px"></span>
+              <span style="height:24px"></span><span style="height:52px"></span><span style="height:35px"></span>
+              <span style="height:60px"></span><span style="height:42px"></span><span style="height:22px"></span>
+              <span style="height:49px"></span><span style="height:32px"></span><span style="height:54px"></span>
+              <span style="height:26px"></span><span style="height:38px"></span><span style="height:18px"></span>
+            </div>
+            <div class="audio-controls"><span>−5</span><b>▶</b><span>+5</span><span>↻</span></div>
+          </div>
+          <span class="project-signal">선택 → 재생 → 반복 <b>상세 보기 →</b></span>
+        </button>
+        <div class="card-links" aria-label="TOEIC Audio Helper 링크">
+          <a class="primary" href="https://github.com/nap4595/Toeic-Audio-Helper" target="_blank" rel="noreferrer">GitHub ↗</a>
+        </div>
+      </article>
+
+      <article class="project-card" style="--accent:#b57b00;--accent-soft:#fff6d9">
+        <button class="card-main" type="button" data-project="place"
+          aria-label="기능은 완성됐지만, 사용 맥락은 맞지 않았다 상세 보기">
+          <span class="project-number">03</span>
+          <span class="project-category">PRODUCT RETROSPECTIVE</span>
+          <h2>기능은 완성됐지만, 사용 맥락은 맞지 않았다</h2>
+          <p>여러 지도 서비스의 장소를 개인 기준으로 정리했지만 실제 여행 계획 방식과 달랐습니다.</p>
+          <div class="place-visual" aria-hidden="true">
+            <div class="map-pane">
+              <span class="road road-one"></span><span class="road road-two"></span>
+              <i class="pin pin-one"></i><i class="pin pin-two"></i><i class="pin pin-three"></i>
+            </div>
+            <div class="list-pane">
+              <div><b>서울 후보</b><span>8 places</span></div>
+              <p><i></i>가격대 <b>보통</b></p>
+              <p><i></i>주차 <b>가능</b></p>
+              <p><i></i>우선순위 <b>높음</b></p>
+            </div>
+          </div>
+          <span class="project-signal">기술적 완성 ≠ 문제 해결 <b>상세 보기 →</b></span>
+        </button>
+        <div class="card-links" aria-label="CustomPlaceDB 링크">
+          <a href="https://github.com/nap4595/CustomPlaceDB" target="_blank" rel="noreferrer">GitHub ↗</a>
+          <a class="primary" href="https://chromewebstore.google.com/detail/customplacedb/pgpoicldhnaceliihdblbanajfgfaicc?hl=ko"
+            target="_blank" rel="noreferrer">Chrome Web Store ↗</a>
+        </div>
+      </article>
+    </section>
+
+    <footer class="site-footer">
+      <p>Problem → Definition → Solution → Retrospective</p>
+      <p>© 2026 Kim Dongwook</p>
+    </footer>
+  </main>
+
+  <dialog id="project-dialog" aria-labelledby="modal-title">
+    <button class="modal-close" type="button" aria-label="상세 내용 닫기">×</button>
+    <div class="modal-heading">
+      <p id="modal-category"></p>
+      <h2 id="modal-title"></h2>
+      <span id="modal-summary"></span>
+    </div>
+    <div class="modal-body">
+      <section>
+        <h3>문제</h3>
+        <p id="modal-problem"></p>
+      </section>
+      <blockquote><span>문제의 재정의</span><b id="modal-reframed"></b></blockquote>
+      <section>
+        <h3>해결 구조</h3>
+        <ol id="modal-solution"></ol>
+      </section>
+      <div class="modal-two-column">
+        <section><h3>결과</h3><p id="modal-result"></p></section>
+        <section><h3>한계와 회고</h3><p id="modal-retrospective"></p></section>
+      </div>
+    </div>
+    <div class="modal-links" id="modal-links"></div>
+  </dialog>
+
+  <script>
+    const projects = {
+      tax: {
+        number: "01",
+        category: "DECISION SUPPORT",
+        accent: "#f05a3c",
+        accentSoft: "#fff0eb",
+        title: "정답 대신, 결론이 바뀌는 조건을 보여주기",
+        summary: "감가상각비 반영 여부를 현재의 절세와 미래의 세부담으로 나누어 비교했습니다.",
+        problem: "현재 종합소득이 낮다는 점만 보면 감가상각비를 필요경비에 반영하지 않는 편이 합리적으로 보였습니다. 하지만 과세표준, 예상 양도가액, 보유기간이 달라지면 현재 소득세와 미래 양도소득세 사이의 유불리가 바뀔 수 있었습니다.",
+        reframed: "감가상각비를 넣을까 말까가 아니라, 어떤 조건에서 판단이 바뀌는가?",
+        solution: [
+          "감가상각비 산입액과 보유기간을 히트맵의 두 축으로 배치했습니다.",
+          "현재 종합소득세 절감액과 미래 양도소득세 증가액을 각각 계산했습니다.",
+          "미래 세부담을 할인한 현재가치를 구해 두 금액의 차이를 셀마다 표시했습니다.",
+          "선택한 셀의 계산 구성요소와 세율, 적용 가정을 결과 옆에서 확인할 수 있게 했습니다."
+        ],
+        result: "하나의 권고를 제시하는 대신, 산입액과 보유기간이 달라질 때 판단이 어떻게 변하는지 비교할 수 있게 했습니다.",
+        retrospective: "여러 해의 감가상각비, 연도별 과세표준 변화, 누적 감가상각비와 단기보유 중과세율 등은 제외한 단순 모델입니다. 복잡한 분야의 도구일수록 결과만큼 전제와 제외된 요소를 명확히 보여줘야 한다고 판단했습니다.",
+        links: [
+          ["GitHub", "https://github.com/nap4595/tax-heatmap-simulator", false],
+          ["GitHub Pages", "https://nap4595.github.io/tax-heatmap-simulator/", true]
+        ]
+      },
+      toeic: {
+        number: "02",
+        category: "WORKFLOW TOOL",
+        accent: "#3659d9",
+        accentSoft: "#edf1ff",
+        title: "파일을 찾는 시간을 듣는 시간으로 바꾸기",
+        summary: "흩어진 LC 음원을 파일명 규칙으로 분류해 원하는 문항을 바로 반복하도록 만들었습니다.",
+        problem: "LC 음원이 전체 듣기, 문항별 듣기, VOCA 파일로 나뉘어 있어 새 파일을 열 때마다 학습 흐름이 끊겼습니다. 기존 모바일 앱도 전환이 느리고 원하는 문항을 빠르게 반복하는 방식과 맞지 않았습니다.",
+        reframed: "범용 플레이어가 아니라, 특정 교재의 파일명 규칙을 이해하는 학습용 조작기.",
+        solution: [
+          "선택한 폴더와 하위 폴더의 MP3 파일을 자동으로 탐색했습니다.",
+          "파일명을 파싱해 전체·문항·VOCA 음원으로 분류했습니다.",
+          "Test 번호와 문항 번호로 필요한 음원을 바로 선택하도록 구성했습니다.",
+          "5초 이동, 반복 재생과 키보드 중심 조작으로 마우스 이동을 줄였습니다."
+        ],
+        result: "특정 교재와 파일명에만 사용할 수 있었지만 실제 학습에 반복적으로 사용했습니다. 범용성보다 매일 되풀이되는 행동을 줄이는 데 초점을 맞춘 도구였습니다.",
+        retrospective: "키보드 조작을 추가하면서 입력창과 전역 단축키가 같은 키를 중복 처리하는 문제가 생겼습니다. 문자 입력과 재생 명령의 책임을 나누고 실행 후 포커스 흐름을 정리해 해결했습니다. 일회용 도구라면 무리한 범용화보다 정확한 범위 설정이 더 나을 수 있었습니다.",
+        links: [["GitHub", "https://github.com/nap4595/Toeic-Audio-Helper", true]]
+      },
+      place: {
+        number: "03",
+        category: "PRODUCT RETROSPECTIVE",
+        accent: "#b57b00",
+        accentSoft: "#fff6d9",
+        title: "기능은 완성됐지만, 사용 맥락은 맞지 않았다",
+        summary: "여러 지도 서비스의 장소를 개인 기준으로 정리했지만 실제 여행 계획 방식과 달랐습니다.",
+        problem: "네이버지도와 카카오맵에 흩어진 장소 후보를 한곳에 저장하고, 가격·주차·우선순위처럼 개인적인 기준으로 비교하고 싶었습니다.",
+        reframed: "장소를 모을 수 있는가보다, 이 방식이 실제 여행 의사결정을 얼마나 자주 돕는가?",
+        solution: [
+          "네이버지도와 카카오맵에서 장소명·카테고리·별점을 추출했습니다.",
+          "목록별 장소 관리와 사용자가 직접 만드는 커스텀 필드를 제공했습니다.",
+          "Chrome Side Panel에서 지도와 데이터베이스를 함께 볼 수 있게 했습니다.",
+          "데이터는 기기에 저장하고 JSON·CSV 백업과 복원을 지원했습니다."
+        ],
+        result: "Chrome 웹스토어 게시까지 완료했지만 정작 만든 사람도 계속 사용하지 않았습니다. 실제 여행 계획은 모바일에서 하나씩 검토했고, 숙소와 식당은 각 분야의 전문 플랫폼도 함께 확인했기 때문입니다.",
+        retrospective: "구현 가능한 기능을 실제 문제로 착각한 사례였습니다. 이후에는 개발 전에 사용 빈도, 사용 기기, 실제 의사결정 과정, 기존 대안과 데이터의 충분성을 먼저 확인해야 한다는 기준을 세웠습니다.",
+        links: [
+          ["GitHub", "https://github.com/nap4595/CustomPlaceDB", false],
+          ["Chrome Web Store", "https://chromewebstore.google.com/detail/customplacedb/pgpoicldhnaceliihdblbanajfgfaicc?hl=ko", true]
+        ]
+      }
+    };
+
+    const dialog = document.querySelector("#project-dialog");
+    const closeButton = dialog.querySelector(".modal-close");
+
+    function openProject(id) {
+      const project = projects[id];
+      dialog.style.setProperty("--accent", project.accent);
+      dialog.style.setProperty("--accent-soft", project.accentSoft);
+      document.querySelector("#modal-category").textContent = project.number + " · " + project.category;
+      document.querySelector("#modal-title").textContent = project.title;
+      document.querySelector("#modal-summary").textContent = project.summary;
+      document.querySelector("#modal-problem").textContent = project.problem;
+      document.querySelector("#modal-reframed").textContent = project.reframed;
+      document.querySelector("#modal-result").textContent = project.result;
+      document.querySelector("#modal-retrospective").textContent = project.retrospective;
+
+      const solution = document.querySelector("#modal-solution");
+      solution.replaceChildren(...project.solution.map(text => {
+        const item = document.createElement("li");
+        item.textContent = text;
+        return item;
+      }));
+
+      const links = document.querySelector("#modal-links");
+      links.replaceChildren(...project.links.map(([label, href, primary]) => {
+        const link = document.createElement("a");
+        link.href = href;
+        link.target = "_blank";
+        link.rel = "noreferrer";
+        link.textContent = label + " ↗";
+        if (primary) link.className = "primary";
+        return link;
+      }));
+
+      document.body.classList.add("modal-open");
+      dialog.showModal();
+      closeButton.focus();
+    }
+
+    document.querySelectorAll("[data-project]").forEach(button => {
+      button.addEventListener("click", () => openProject(button.dataset.project));
+    });
+
+    closeButton.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", event => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener("close", () => document.body.classList.remove("modal-open"));
+  </script>
+</body>
+</html>
